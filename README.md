@@ -1,1 +1,21 @@
 # autoeditgui
+
+## Project Purpose
+This project aims to provide a user-friendly GUI for the Auto Editor CLI, making it accessible for users who prefer visual interaction over command-line usage. By offering a streamlined interface, the goal is to simplify video editing tasks that Auto Editor CLI performs, such as automated cuts based on audio levels, for a wider audience. This GUI is designed for personal use, enabling users to easily leverage Auto Editor’s powerful features without needing command-line knowledge.
+
+## Copyright Notice
+© [2024] [Rina Yoo]. All rights reserved.
+
+## License
+**Personal Use Only**: This project is provided for personal use. You are permitted to view, fork, and use the code for individual, non-commercial purposes.
+**Prohibited Actions**:
+- Modification: You may not modify this code or create derivative works based on it.
+- Distribution: You may not redistribute this code or any parts of it.
+- Commercial Use: You may not use this code, in whole or in part, for commercial purposes, including selling or using it in a product that you charge for.
+
+If you have questions about using this project, please contact the author.
+
+## Credits
+This project interfaces with the [Auto Editor CLI](https://github.com/WyattBlue/auto-editor), which is in the public domain under the Unlicense. Full license details for Auto Editor can be found [here](https://github.com/WyattBlue/auto-editor?tab=Unlicense-1-ov-file#readme).
+
+Special thanks to the Auto Editor team for making their tool publicly available.
