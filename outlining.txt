@@ -1,0 +1,30 @@
+The features of auto-editor that I want to make ui for
+
+- adding margin
+- editing out motionlessness
+- editing by decibel level
+- exporting what is cut out vs normal exporting
+- exporting to editors
+
+- always show progress bar
+- dont forget error messages
+
+features i want to make immediately
+- drag drop file video file
+- use ffmpeg command to see min, max, and average audio level by decibel (audio statistics)
+- be able to see the video after cli commands, before exporting
+
+potential future features
+- make it a reaallyy basic video editing gui that allows user to make cuts on a timeline
+- ^ normal delete and ripple delete
+- customizable undo/redo shortcut
+- show audio wave form
+
+
+Outline of steps to take
+1. Research GUI frameworks
+2. Visually design GUI
+3. Code the basic gui
+4. Connect cli commands
+5. Test it out
+6. Repeat 3, 4, and 5 until satisfied!
