@@ -1,7 +1,8 @@
 # autoeditgui
 
 ## Project Purpose
-This project aims to provide a user-friendly GUI for the Auto Editor CLI. This GUI is designed for personal use.
+This project aims to provide a user-friendly GUI for the Auto-Editor CLI but with a few more added features. This GUI is designed for personal use.
+Added features include: audio analysis summary, serving to allow users to make educated decisions on auto-cutting their video.
 
 ## Copyright Notice
 © [2024] [Rina Yoo]. All rights reserved.
