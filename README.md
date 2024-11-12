@@ -16,4 +16,4 @@ For personal reference only. Please contact the copyright holder for any permiss
 This project interfaces with the [Auto Editor CLI](https://github.com/WyattBlue/auto-editor), which is in the public domain under The Unlicense. Full license details for Auto Editor can be found [here](https://github.com/WyattBlue/auto-editor?tab=Unlicense-1-ov-file#readme).
 Special thanks to the Auto Editor team for making their tool publicly available.
 
-This project also utilizes the Qt libraries under the LGPL (Lesser General Public License). No modifications have been made to the Qt libraries, and they are dynamically linked within this project, in accordance with LGPL requirements. This project itself is unlicensed, with no permissions granted for use, modification, distribution, or commercial purposes.
+This project also utilizes the Qt libraries under the LGPL (Lesser General Public License). No modifications have been made to the Qt libraries, and they are dynamically linked within this project, in accordance with LGPL requirements. This project itself is non-open source, is not being distributed commercially, and complies with LGPL requirements.
