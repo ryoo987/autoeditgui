@@ -1,10 +1,12 @@
-from PySide6.QtWidgets import QApplication, QWidget
+from PySide6.QtWidgets import QApplication, QWidget, QMainWindow
+from PySide6.QtUiTools import QUiLoader
+from MainWindow import MainWindow
 
 import sys
 
+loader = QUiLoader()
 app = QApplication(sys.argv)
 
-window = QWidget()
-window.show()
+window = MainWindow(loader)
 
 app.exec()
