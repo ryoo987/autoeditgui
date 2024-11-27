@@ -291,7 +291,7 @@
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_8">
           <item>
-           <widget class="QSpinBox" name="silentInput1">
+           <widget class="QDoubleSpinBox" name="silentInput1">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
@@ -314,7 +314,7 @@
            </widget>
           </item>
           <item>
-           <widget class="QSpinBox" name="silentInput2">
+           <widget class="QDoubleSpinBox" name="silentInput2">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
               <horstretch>0</horstretch>
