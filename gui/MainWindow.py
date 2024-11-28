@@ -12,35 +12,22 @@ class MainWindow(QMainWindow):
 
         self.ui.show()
 
-##########################################################
+##################################################################################
 #         # connect ui that will change or needs user input to their corresponding methods - eg. self.ui.runButton.clicked.connect(self.run_autoeditor)
 # print(uniform_check)
         # self.ui.silentInput1.valueChanged.connect(lambda value: print("hi"))
 
-
-
-# connect spinbox 1 and 2 and uniform check box
         self.ui.silentInput1.valueChanged.connect(self.sinput1Change)
         self.ui.silentInput2.valueChanged.connect(self.sinput2Change)
-        # self.ui.uniformCheck.checkStateChanged.connect()
 
-# connect choosing cut out vs split
-        # self.ui.cutOrSplitInput.activated.connect()
-        # i can change this variable when i export
-
-# connect motionless scale and the spinbox
         self.ui.motionlessSliderInput.valueChanged.connect(self.sliderChange)
         self.ui.motionlessPercentInput.valueChanged.connect(self.minputChange)
-# connect audio below spinbox
-        # self.ui.audioCutInput.valueChanged.connect()
 
-# connect the clear button
         self.ui.clearButton.clicked.connect(self.resetInput)
 
-# connect the export button
         self.ui.exportButton.clicked.connect(self.run_autoeditor)
 
-###########################################################
+##################################################################################
 
 # # methods corresponding to ui such as
 #     def run_autoeditor(self):
@@ -67,7 +54,6 @@ class MainWindow(QMainWindow):
 
 # the motionless scale will go from 0 to 100% and needs to connect to the spinbox to reflect the slider changing. the spinbox itself needs to show % after every change
 
-
     def sliderChange(self):
         self.ui.motionlessPercentInput.setValue(
             self.ui.motionlessSliderInput.value())
@@ -84,52 +70,58 @@ class MainWindow(QMainWindow):
         self.ui.motionlessSliderInput.setValue(0)
         self.ui.motionlessPercentInput.setValue(0)
         self.ui.audioCutInput.setValue(0)
+        self.ui.editOrderInput.setCurrentIndex(0)
+        self.ui.exportProgramInput.setCurrentIndex(0)
 
     def run_autoeditor(self):
         # if i want to run just audio, its "auto-editor test5.mp4 --edit audio:-25dB"
         # if i want to run just motion, its "auto-editor test5.mp4 --edit motion:threshold=0.02"
-        # if i want to run both, its 'auto-editor test5.mp4 --edit "(or audio:-25dB motion:0.50)" '. 
+        # if i want to run both, its 'auto-editor test5.mp4 --edit "(or audio:-25dB motion:0.50)" '.
         # Problem is, it will delete audio below -25db but keep the motion if its above 0.50, regardless of audio / keeps audio regardless of motion. I need to do one command after the other if I want to make sure all parts with audio below -25db is deleted and then all parts w/motion below threshold is deleted (and vice versa). Order matters.
 
         audio_command = ["auto-editor",
-            "test5.mp4",
-            "--margin",
-            f"{self.ui.silentInput1.value()}s",
-            f"{self.ui.silentInput2.value()}s",
-            "--edit", f"audio:{self.ui.audioCutInput.value()}dB",
-            "--output",
-            "output.mp4"]
-                   
+                         "test5.mp4",
+                         "--margin",
+                         f"{self.ui.silentInput1.value()}s,"
+                         f"{self.ui.silentInput2.value()}s",
+                         "--edit", f"audio:{self.ui.audioCutInput.value()}dB",
+                         "--output",
+                         "output.mp4"]
+
         motion_command = ["auto-editor",
-            "test5.mp4",
-            "--margin",
-            f"{self.ui.silentInput1.value()}s",
-            f"{self.ui.silentInput2.value()}s",
-            "--edit", f"motion:threshold=
-            {self.ui.motionlessPercentInput.value()}",
-            "--output",
-            "output.mp4"]
-            
+                          "test5.mp4",
+                          "--margin",
+                          f"{self.ui.silentInput1.value()}s",
+                          f"{self.ui.silentInput2.value()}s",
+                          "--edit", f"motion:threshold="
+                          f"{self.ui.motionlessPercentInput.value()}",
+                          "--output",
+                          "output.mp4"]
+
         default_both_command = ["auto-editor",
-            "test5.mp4",
-            "--margin",
-            f"{self.ui.silentInput1.value()}s",
-            f"{self.ui.silentInput2.value()}s",
-            "--edit", f"(or audio:
-            {self.ui.audioCutInput.value()} motion:{self.ui.motionlessPercentInput.value()}",
-            "--output",
-            "output.mp4"],
-        
+                                "test5.mp4",
+                                "--margin",
+                                f"{self.ui.silentInput1.value()}s",
+                                f"{self.ui.silentInput2.value()}s",
+                                "--edit", f"(or audio:"
+                                f"{self.ui.audioCutInput.value()}"
+                                f"motion:{
+                                    self.ui.motionlessPercentInput.value()}",
+                                "--output",
+                                "output.mp4"],
+
         command = []
-        match self.ui.editOrder.value():
-            case "audio-only":
+        match self.ui.editOrderInput.currentText():
+            case "audio only":
                 command = audio_command.copy()
-                command.extend(["--export", self.ui.exportProgram.currentText()])
+                command.extend(
+                    ["--export", self.ui.exportProgramInput.currentText()])
                 # subprocess.run([command])
-            case "motion-only": 
+            case "motion-only":
                 command = motion_command.copy()
-                command.extend(["--export", self.ui.exportProgram.currentText()])
-            case "audio-then-motion":
+                command.extend(
+                    ["--export", self.ui.exportProgramInput.currentText()])
+            case "audio then motion":
                 try:
                     subprocess.run(audio_command, check=True)
                     print("Command executed successfully!")
@@ -138,8 +130,9 @@ class MainWindow(QMainWindow):
                 # subprocess.run([audio_command])
                 command = motion_command.copy()
                 command[1] = "output.mp4"
-                command.extend(["--export", self.ui.exportProgram.currentText()])
-            case "motion-then-audio":
+                command.extend(
+                    ["--export", self.ui.exportProgramInput.currentText()])
+            case "motion then audio":
                 try:
                     subprocess.run(motion_command, check=True)
                     print("Command executed successfully!")
@@ -148,14 +141,18 @@ class MainWindow(QMainWindow):
                 # subprocess.run([motion_command])
                 command = audio_command.copy()
                 command[1] = "output.mp4"
-                command.extend(["--export", self.ui.exportProgram.currentText()])
-            case _: #default case is doing both at the same time
+                command.extend(
+                    ["--export", self.ui.exportProgramInput.currentText()])
+            case "keep both":  # default case is doing both at the same time
                 command = default_both_command.copy()
-                command.extend(["--export", self.ui.exportProgram.currentText()])
+                command.extend(
+                    ["--export", self.ui.exportProgramInput.currentText()])
+
+        if (self.ui.cutOrSplitInput.currentText() == "Split"):
+            command.extend(["--silent-speed", "1", "--video-speed", "1"])
 
         try:
             subprocess.run(command, check=True)
             print("Command executed successfully!")
         except subprocess.CalledProcessError as e:
             print(f"Error occurred: {e}")
-
