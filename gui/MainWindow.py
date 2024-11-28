@@ -17,15 +17,6 @@ class MainWindow(QMainWindow):
 # print(uniform_check)
         # self.ui.silentInput1.valueChanged.connect(lambda value: print("hi"))
 
-        # initalize variables
-        # self.initialize_var()
-        # self.silentInput1 = 0.0
-        # self.silentInput2 = 0.0
-        # # self.uniformCheck = True
-        # self.cutOrSplitChoice = "Cut Out"
-        # self.motionlessSliderInput = 0
-        # self.motionlessPercentInput = 0
-        # self.audioCutInput = 0
 
 
 # connect spinbox 1 and 2 and uniform check box
@@ -93,7 +84,6 @@ class MainWindow(QMainWindow):
         self.ui.motionlessSliderInput.setValue(0)
         self.ui.motionlessPercentInput.setValue(0)
         self.ui.audioCutInput.setValue(0)
-        # self.initialize_var()
 
     def run_autoeditor(self):
         # if i want to run just audio, its "auto-editor test5.mp4 --edit audio:-25dB"
@@ -169,11 +159,3 @@ class MainWindow(QMainWindow):
         except subprocess.CalledProcessError as e:
             print(f"Error occurred: {e}")
 
-    # def initialize_var(self):
-    #     self.silentInput1 = self.ui.silentInput1.value()
-    #     self.silentInput2 = self.ui.silentInput2.value()
-    #     # self.uniformCheck = True
-    #     self.cutOrSplitChoice = self.ui.cutOrSplitInput.currentText()
-    #     self.motionlessSliderInput = self.ui.motionlessSliderInput.value()
-    #     self.motionlessPercentInput = self.ui.motionlessPercentInput.value()
-    #     self.audioCutInput = self.ui.audioCutInput.value()
