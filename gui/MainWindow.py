@@ -96,17 +96,72 @@ class MainWindow(QMainWindow):
         # self.initialize_var()
 
     def run_autoeditor(self):
-        command = ["auto-editor",
-                   "test.mp4",
-                   "--margin",
-                   f"{self.ui.silentInput1.value()}s",
-                   f"{self.ui.silentInput2.value()}s",
-                   "--edit", f"motion:threshold={
-                       self.ui.motionlessPercentInput.value()}",
-                   "--edit", f"audio:threshold={
-                       self.ui.audioCutInput.value()}dB",
-                   "--export",
-                   "output.mp4"]
+        # if i want to run just audio, its "auto-editor test5.mp4 --edit audio:-25dB"
+        # if i want to run just motion, its "auto-editor test5.mp4 --edit motion:threshold=0.02"
+        # if i want to run both, its 'auto-editor test5.mp4 --edit "(or audio:-25dB motion:0.50)" '. 
+        # Problem is, it will delete audio below -25db but keep the motion if its above 0.50, regardless of audio / keeps audio regardless of motion. I need to do one command after the other if I want to make sure all parts with audio below -25db is deleted and then all parts w/motion below threshold is deleted (and vice versa). Order matters.
+
+        audio_command = ["auto-editor",
+            "test5.mp4",
+            "--margin",
+            f"{self.ui.silentInput1.value()}s",
+            f"{self.ui.silentInput2.value()}s",
+            "--edit", f"audio:{self.ui.audioCutInput.value()}dB",
+            "--output",
+            "output.mp4"]
+                   
+        motion_command = ["auto-editor",
+            "test5.mp4",
+            "--margin",
+            f"{self.ui.silentInput1.value()}s",
+            f"{self.ui.silentInput2.value()}s",
+            "--edit", f"motion:threshold=
+            {self.ui.motionlessPercentInput.value()}",
+            "--output",
+            "output.mp4"]
+            
+        default_both_command = ["auto-editor",
+            "test5.mp4",
+            "--margin",
+            f"{self.ui.silentInput1.value()}s",
+            f"{self.ui.silentInput2.value()}s",
+            "--edit", f"(or audio:
+            {self.ui.audioCutInput.value()} motion:{self.ui.motionlessPercentInput.value()}",
+            "--output",
+            "output.mp4"],
+        
+        command = []
+        match self.ui.editOrder.value():
+            case "audio-only":
+                command = audio_command.copy()
+                command.extend(["--export", self.ui.exportProgram.currentText()])
+                # subprocess.run([command])
+            case "motion-only": 
+                command = motion_command.copy()
+                command.extend(["--export", self.ui.exportProgram.currentText()])
+            case "audio-then-motion":
+                try:
+                    subprocess.run(audio_command, check=True)
+                    print("Command executed successfully!")
+                except subprocess.CalledProcessError as e:
+                    print(f"Error occurred: {e}")
+                # subprocess.run([audio_command])
+                command = motion_command.copy()
+                command[1] = "output.mp4"
+                command.extend(["--export", self.ui.exportProgram.currentText()])
+            case "motion-then-audio":
+                try:
+                    subprocess.run(motion_command, check=True)
+                    print("Command executed successfully!")
+                except subprocess.CalledProcessError as e:
+                    print(f"Error occurred: {e}")
+                # subprocess.run([motion_command])
+                command = audio_command.copy()
+                command[1] = "output.mp4"
+                command.extend(["--export", self.ui.exportProgram.currentText()])
+            case _: #default case is doing both at the same time
+                command = default_both_command.copy()
+                command.extend(["--export", self.ui.exportProgram.currentText()])
 
         try:
             subprocess.run(command, check=True)
