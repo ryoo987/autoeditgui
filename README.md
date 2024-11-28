@@ -18,5 +18,5 @@ Special thanks to the Auto Editor team for making their tool publicly available.
 
 This project also utilizes the Qt libraries under the LGPL (Lesser General Public License). No modifications have been made to the Qt libraries, and they are dynamically linked within this project, in accordance with LGPL requirements. This project itself is non-open source, is not being distributed commercially, and complies with LGPL requirements.
 
-###Note
+### Note
 For some reason, I cannot resolve an error from Auto-Editor that I have not seen anyone else have with the most updated version. An av error appears for videos using the hevc video encoder, but Auto-Editor works fine for h264 videos. This might be happening only to my personal version of auto-editor, despite being the latest version.
