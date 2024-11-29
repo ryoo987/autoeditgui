@@ -1,6 +1,7 @@
-from PySide6.QtWidgets import QMainWindow
+from PySide6.QtWidgets import QMainWindow, QFileDialog
 from PySide6.QtUiTools import QUiLoader
 import subprocess
+import re
 
 
 class MainWindow(QMainWindow):
@@ -12,11 +13,12 @@ class MainWindow(QMainWindow):
 
         self.ui.show()
 
-##################################################################################
-#         # connect ui that will change or needs user input to their corresponding methods - eg. self.ui.runButton.clicked.connect(self.run_autoeditor)
-# print(uniform_check)
-        # self.ui.silentInput1.valueChanged.connect(lambda value: print("hi"))
+        # connect ui ##########################
+        # first if the user drag drops or imports their file, do ffmpeg analysis
+        self.file_path = None
+        self.ui.fileInputBtn.clicked.connect(self.importFile)
 
+        # now account for input interactions made
         self.ui.silentInput1.valueChanged.connect(self.sinput1Change)
         self.ui.silentInput2.valueChanged.connect(self.sinput2Change)
 
@@ -28,19 +30,38 @@ class MainWindow(QMainWindow):
         self.ui.exportButton.clicked.connect(self.run_autoeditor)
 
 ##################################################################################
+    # all the methods
 
-# # methods corresponding to ui such as
-#     def run_autoeditor(self):
-#         # Example CLI command
-#         command = ["auto-editor", "input.mp4", "--export", "output.mp4"]
+    def importFile(self):
+        file_path, _ = QFileDialog.getOpenFileName(
+            self, "Select Video File", "", "Video Files (*.mp4 *.avi *.mov);;All Files (*)")
+        if file_path:
+            self.file_path = file_path
 
-#         try:
-#             subprocess.run(command, check=True)
-#             print("Command executed successfully!")
-#         except subprocess.CalledProcessError as e:
-#             print(f"Error occurred: {e}")
+        audio_stats_command = ["ffmpeg",
+                               "-hide_banner",
+                               "-i",
+                               f"{self.file_path}",
+                               "-filter:a",
+                               "volumedetect",
+                               "-f", "null",
+                               "-"]
+
+        result = subprocess.run(
+            audio_stats_command, stderr=subprocess.PIPE, text=True)
+
+        output = result.stderr
+        mean_volume = re.search(r"mean_volume:\s(-?\d+\.\d+)", output)
+        mean_volume = float(mean_volume.group(1))
+        max_volume = re.search(r"max_volume:\s(-?\d+\.\d+)", output)
+        max_volume = float(max_volume.group(1))
+
+        self.ui.meanDBValue.setNum(mean_volume)
+        self.ui.maxDBValue.setNum(max_volume)
+
 
 # spinbox 1 and 2 will change by a tenth. They are the same number when uniform is checked. They arent the same when unchecked.
+
     def sinput1Change(self):
         if self.ui.uniform_checkbox.isChecked():
             self.ui.silentInput2.setValue(self.ui.silentInput1.value())
@@ -48,9 +69,6 @@ class MainWindow(QMainWindow):
     def sinput2Change(self):
         if self.ui.uniform_checkbox.isChecked():
             self.ui.silentInput1.setValue(self.ui.silentInput2.value())
-
-
-# set the variable for cut out vs split
 
 # the motionless scale will go from 0 to 100% and needs to connect to the spinbox to reflect the slider changing. the spinbox itself needs to show % after every change
 
@@ -61,7 +79,8 @@ class MainWindow(QMainWindow):
     def minputChange(self):
         self.ui.motionlessSliderInput.setValue(
             self.ui.motionlessPercentInput.value())
-# the audio below spinbox will change by 1 and needs a unit db after every change.
+
+# the audio below spinbox will change by 1
 
     def resetInput(self):
         self.ui.silentInput1.setValue(0.0)
@@ -80,7 +99,7 @@ class MainWindow(QMainWindow):
         # Problem is, it will delete audio below -25db but keep the motion if its above 0.50, regardless of audio / keeps audio regardless of motion. I need to do one command after the other if I want to make sure all parts with audio below -25db is deleted and then all parts w/motion below threshold is deleted (and vice versa). Order matters.
 
         audio_command = ["auto-editor",
-                         "test5.mp4",
+                         f"{self.file_path}",
                          "--margin",
                          f"{self.ui.silentInput1.value()}s,"
                          f"{self.ui.silentInput2.value()}s",
@@ -89,7 +108,7 @@ class MainWindow(QMainWindow):
                          "output.mp4"]
 
         motion_command = ["auto-editor",
-                          "test5.mp4",
+                          f"{self.file_path}",
                           "--margin",
                           f"{self.ui.silentInput1.value()}s",
                           f"{self.ui.silentInput2.value()}s",
@@ -99,7 +118,7 @@ class MainWindow(QMainWindow):
                           "output.mp4"]
 
         default_both_command = ["auto-editor",
-                                "test5.mp4",
+                                f"{self.file_path}",
                                 "--margin",
                                 f"{self.ui.silentInput1.value()}s",
                                 f"{self.ui.silentInput2.value()}s",
