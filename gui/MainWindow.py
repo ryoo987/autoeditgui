@@ -2,6 +2,9 @@ from PySide6.QtWidgets import QMainWindow, QFileDialog
 from PySide6.QtUiTools import QUiLoader
 import subprocess
 import re
+import os
+from tqdm import tqdm
+from ffmpeg_progress_yield import FfmpegProgress
 
 
 class MainWindow(QMainWindow):
@@ -38,6 +41,7 @@ class MainWindow(QMainWindow):
         if file_path:
             self.file_path = file_path
 
+        self.ui.progressLabel.setText("Retrieving audio stats")
         audio_stats_command = ["ffmpeg",
                                "-hide_banner",
                                "-i",
@@ -45,10 +49,16 @@ class MainWindow(QMainWindow):
                                "-filter:a",
                                "volumedetect",
                                "-f", "null",
-                               "-"]
+                               "NUL"]
 
-        result = subprocess.run(
-            audio_stats_command, stderr=subprocess.PIPE, text=True)
+        result = FfmpegProgress(audio_stats_command)
+        with tqdm(total=100, position=1, desc="Test") as pbar:
+            for progress in result.run_command_with_progress():
+                pbar.update(progress - pbar.n)
+                # print(progress)
+                self.ui.progressBar.setValue(progress)
+
+        self.ui.progressLabel.setText("Audio stats retrieved")
 
         output = result.stderr
         mean_volume = re.search(r"mean_volume:\s(-?\d+\.\d+)", output)
@@ -61,6 +71,7 @@ class MainWindow(QMainWindow):
 
 
 # spinbox 1 and 2 will change by a tenth. They are the same number when uniform is checked. They arent the same when unchecked.
+
 
     def sinput1Change(self):
         if self.ui.uniform_checkbox.isChecked():
@@ -97,71 +108,60 @@ class MainWindow(QMainWindow):
         # if i want to run just motion, its "auto-editor test5.mp4 --edit motion:threshold=0.02"
         # if i want to run both, its 'auto-editor test5.mp4 --edit "(or audio:-25dB motion:0.50)" '.
         # Problem is, it will delete audio below -25db but keep the motion if its above 0.50, regardless of audio / keeps audio regardless of motion. I need to do one command after the other if I want to make sure all parts with audio below -25db is deleted and then all parts w/motion below threshold is deleted (and vice versa). Order matters.
-
         audio_command = ["auto-editor",
                          f"{self.file_path}",
-                         "--margin",
-                         f"{self.ui.silentInput1.value()}s,"
-                         f"{self.ui.silentInput2.value()}s",
                          "--edit", f"audio:{self.ui.audioCutInput.value()}dB",
                          "--output",
-                         "output.mp4"]
+                         "output.mp4",
+                         "--progress", "modern"]
 
         motion_command = ["auto-editor",
                           f"{self.file_path}",
-                          "--margin",
-                          f"{self.ui.silentInput1.value()}s",
-                          f"{self.ui.silentInput2.value()}s",
                           "--edit", f"motion:threshold="
                           f"{self.ui.motionlessPercentInput.value()}",
                           "--output",
-                          "output.mp4"]
+                          "output.mp4",
+                          "--progress", "modern"]
 
         default_both_command = ["auto-editor",
                                 f"{self.file_path}",
-                                "--margin",
-                                f"{self.ui.silentInput1.value()}s",
-                                f"{self.ui.silentInput2.value()}s",
                                 "--edit", f"(or audio:"
                                 f"{self.ui.audioCutInput.value()}"
                                 f"motion:{
                                     self.ui.motionlessPercentInput.value()}",
                                 "--output",
-                                "output.mp4"],
+                                "output.mp4",
+                                "--progress", "modern"],
 
+        currCommandNum = 1
         command = []
         match self.ui.editOrderInput.currentText():
             case "audio only":
                 command = audio_command.copy()
                 command.extend(
                     ["--export", self.ui.exportProgramInput.currentText()])
-                # subprocess.run([command])
             case "motion-only":
                 command = motion_command.copy()
                 command.extend(
                     ["--export", self.ui.exportProgramInput.currentText()])
             case "audio then motion":
-                try:
-                    subprocess.run(audio_command, check=True)
-                    print("Command executed successfully!")
-                except subprocess.CalledProcessError as e:
-                    print(f"Error occurred: {e}")
-                # subprocess.run([audio_command])
+                self.ui.progressLabel.setText("Process 1 of 2")
+                self.runAutoWProgressBar(audio_command)
+
                 command = motion_command.copy()
                 command[1] = "output.mp4"
                 command.extend(
                     ["--export", self.ui.exportProgramInput.currentText()])
+                currCommandNum = 2
             case "motion then audio":
-                try:
-                    subprocess.run(motion_command, check=True)
-                    print("Command executed successfully!")
-                except subprocess.CalledProcessError as e:
-                    print(f"Error occurred: {e}")
-                # subprocess.run([motion_command])
+                self.ui.progressLabel.setText("Process 1 of 2")
+                self.runAutoWProgressBar(motion_command)
+
                 command = audio_command.copy()
                 command[1] = "output.mp4"
                 command.extend(
                     ["--export", self.ui.exportProgramInput.currentText()])
+                currCommandNum = 2
             case "keep both":  # default case is doing both at the same time
                 command = default_both_command.copy()
                 command.extend(
@@ -170,8 +170,44 @@ class MainWindow(QMainWindow):
         if (self.ui.cutOrSplitInput.currentText() == "Split"):
             command.extend(["--silent-speed", "1", "--video-speed", "1"])
 
-        try:
-            subprocess.run(command, check=True)
-            print("Command executed successfully!")
-        except subprocess.CalledProcessError as e:
-            print(f"Error occurred: {e}")
+        if (self.ui.silentInput1.value() > 0.00 or self.ui.silentInput2.value() > 0.00):
+            command.extend(["--margin",
+                            f"{self.ui.silentInput1.value()}s,"
+                            f"{self.ui.silentInput2.value()}s"])
+
+        self.ui.progressLabel.setText(
+            f"Process {currCommandNum} of {currCommandNum}")
+        self.runAutoWProgressBar(command)
+
+    def runAutoWProgressBar(self, command):
+        # Reset the progress bar
+        self.ui.progressBar.reset()
+
+        # Add PYTHONUNBUFFERED to environment variables for unbuffered output
+        env = {**subprocess.os.environ, "PYTHONUNBUFFERED": "1"}
+
+        # Run auto-editor as a subprocess
+        process = subprocess.Popen(
+            command,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            universal_newlines=True,
+            env=env,
+            bufsize=1
+        )
+
+        pattern = r"\s+&.*\[\S+\]\s+(\d+\.\d+)%"
+
+        for line in iter(process.stdout.readline, ""):
+            if not line.strip():  # Skip empty lines
+                continue
+            # print(f"Line: {line.strip()}")
+
+            match = re.match(pattern, line)
+            if match:
+                progress = float(match.group(1))  # Extract percentage
+                self.ui.progressBar.setValue(progress)  # Update progress bar
+            if "Finished." in line:
+                self.ui.progressBar.setValue(100)
+                print(command)
+        process.wait()
