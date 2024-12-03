@@ -2,7 +2,6 @@ from PySide6.QtWidgets import QMainWindow, QFileDialog
 from PySide6.QtUiTools import QUiLoader
 import subprocess
 import re
-import os
 from tqdm import tqdm
 from ffmpeg_progress_yield import FfmpegProgress
 
