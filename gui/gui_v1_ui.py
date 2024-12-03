@@ -18,23 +18,26 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QComboBox, QDoubleSpinBox,
     QFrame, QHBoxLayout, QLabel, QLayout,
-    QMainWindow, QMenu, QMenuBar, QPushButton,
-    QSizePolicy, QSlider, QSpacerItem, QSpinBox,
-    QStatusBar, QVBoxLayout, QWidget)
+    QMainWindow, QMenu, QMenuBar, QProgressBar,
+    QPushButton, QSizePolicy, QSlider, QSpacerItem,
+    QSpinBox, QStatusBar, QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         if not MainWindow.objectName():
             MainWindow.setObjectName(u"MainWindow")
-        MainWindow.resize(550, 346)
+        MainWindow.resize(550, 406)
         self.centralwidget = QWidget(MainWindow)
         self.centralwidget.setObjectName(u"centralwidget")
-        self.horizontalLayout_2 = QHBoxLayout(self.centralwidget)
+        self.verticalLayout_10 = QVBoxLayout(self.centralwidget)
+        self.verticalLayout_10.setObjectName(u"verticalLayout_10")
+        self.horizontalLayout_2 = QHBoxLayout()
         self.horizontalLayout_2.setObjectName(u"horizontalLayout_2")
         self.verticalLayout_5 = QVBoxLayout()
         self.verticalLayout_5.setObjectName(u"verticalLayout_5")
         self.fileInputBtn = QPushButton(self.centralwidget)
         self.fileInputBtn.setObjectName(u"fileInputBtn")
+        self.fileInputBtn.setAcceptDrops(True)
 
         self.verticalLayout_5.addWidget(self.fileInputBtn)
 
@@ -204,6 +207,7 @@ class Ui_MainWindow(object):
         self.silentInput1.setObjectName(u"silentInput1")
         sizePolicy.setHeightForWidth(self.silentInput1.sizePolicy().hasHeightForWidth())
         self.silentInput1.setSizePolicy(sizePolicy)
+        self.silentInput1.setSingleStep(0.500000000000000)
 
         self.horizontalLayout_8.addWidget(self.silentInput1)
 
@@ -221,6 +225,7 @@ class Ui_MainWindow(object):
         self.silentInput2.setObjectName(u"silentInput2")
         sizePolicy.setHeightForWidth(self.silentInput2.sizePolicy().hasHeightForWidth())
         self.silentInput2.setSizePolicy(sizePolicy)
+        self.silentInput2.setSingleStep(0.500000000000000)
 
         self.horizontalLayout_8.addWidget(self.silentInput2)
 
@@ -320,9 +325,22 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_11.addWidget(self.audioCutLabel)
 
+        self.audioCutSliderInput = QSlider(self.centralwidget)
+        self.audioCutSliderInput.setObjectName(u"audioCutSliderInput")
+        sizePolicy.setHeightForWidth(self.audioCutSliderInput.sizePolicy().hasHeightForWidth())
+        self.audioCutSliderInput.setSizePolicy(sizePolicy)
+        self.audioCutSliderInput.setMinimum(-60)
+        self.audioCutSliderInput.setMaximum(0)
+        self.audioCutSliderInput.setValue(-25)
+        self.audioCutSliderInput.setOrientation(Qt.Orientation.Horizontal)
+
+        self.horizontalLayout_11.addWidget(self.audioCutSliderInput)
+
         self.audioCutInput = QSpinBox(self.centralwidget)
         self.audioCutInput.setObjectName(u"audioCutInput")
-        self.audioCutInput.setMinimum(-99)
+        self.audioCutInput.setMinimum(-60)
+        self.audioCutInput.setMaximum(0)
+        self.audioCutInput.setValue(-25)
 
         self.horizontalLayout_11.addWidget(self.audioCutInput)
 
@@ -399,10 +417,6 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_12 = QHBoxLayout()
         self.horizontalLayout_12.setObjectName(u"horizontalLayout_12")
-        self.horizontalSpacer_3 = QSpacerItem(91, 20, QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Minimum)
-
-        self.horizontalLayout_12.addItem(self.horizontalSpacer_3)
-
         self.exportButton = QPushButton(self.centralwidget)
         self.exportButton.setObjectName(u"exportButton")
         sizePolicy5 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
@@ -410,6 +424,7 @@ class Ui_MainWindow(object):
         sizePolicy5.setVerticalStretch(0)
         sizePolicy5.setHeightForWidth(self.exportButton.sizePolicy().hasHeightForWidth())
         self.exportButton.setSizePolicy(sizePolicy5)
+        self.exportButton.setCheckable(False)
 
         self.horizontalLayout_12.addWidget(self.exportButton)
 
@@ -425,6 +440,39 @@ class Ui_MainWindow(object):
 
 
         self.horizontalLayout_2.addLayout(self.verticalLayout_6)
+
+
+        self.verticalLayout_10.addLayout(self.horizontalLayout_2)
+
+        self.verticalSpacer_3 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout_10.addItem(self.verticalSpacer_3)
+
+        self.verticalLayout_9 = QVBoxLayout()
+        self.verticalLayout_9.setObjectName(u"verticalLayout_9")
+        self.progressLabel = QLabel(self.centralwidget)
+        self.progressLabel.setObjectName(u"progressLabel")
+        sizePolicy1.setHeightForWidth(self.progressLabel.sizePolicy().hasHeightForWidth())
+        self.progressLabel.setSizePolicy(sizePolicy1)
+
+        self.verticalLayout_9.addWidget(self.progressLabel)
+
+        self.progressBar = QProgressBar(self.centralwidget)
+        self.progressBar.setObjectName(u"progressBar")
+        palette = QPalette()
+        brush = QBrush(QColor(133, 139, 255, 255))
+        brush.setStyle(Qt.SolidPattern)
+        palette.setBrush(QPalette.Active, QPalette.Accent, brush)
+        palette.setBrush(QPalette.Inactive, QPalette.Accent, brush)
+        palette.setBrush(QPalette.Disabled, QPalette.Accent, brush)
+        self.progressBar.setPalette(palette)
+        self.progressBar.setAcceptDrops(False)
+        self.progressBar.setValue(0)
+
+        self.verticalLayout_9.addWidget(self.progressBar)
+
+
+        self.verticalLayout_10.addLayout(self.verticalLayout_9)
 
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
@@ -496,6 +544,7 @@ class Ui_MainWindow(object):
 
         self.exportButton.setText(QCoreApplication.translate("MainWindow", u"Export", None))
         self.clearButton.setText(QCoreApplication.translate("MainWindow", u"Clear", None))
+        self.progressLabel.setText("")
         self.menuFile.setTitle(QCoreApplication.translate("MainWindow", u"File", None))
         self.menuEdit.setTitle(QCoreApplication.translate("MainWindow", u"Edit", None))
         self.menuView.setTitle(QCoreApplication.translate("MainWindow", u"View", None))
