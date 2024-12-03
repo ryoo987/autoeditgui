@@ -28,6 +28,10 @@ class MainWindow(QMainWindow):
         self.ui.motionlessSliderInput.valueChanged.connect(self.sliderChange)
         self.ui.motionlessPercentInput.valueChanged.connect(self.minputChange)
 
+        self.ui.audioCutSliderInput.valueChanged.connect(
+            self.audioCutSliderChange)
+        self.ui.audioCutInput.valueChanged.connect(self.audioCutInputChange)
+
         self.ui.clearButton.clicked.connect(self.resetInput)
 
         self.ui.exportButton.clicked.connect(self.run_autoeditor)
@@ -72,7 +76,6 @@ class MainWindow(QMainWindow):
 
 # spinbox 1 and 2 will change by a tenth. They are the same number when uniform is checked. They arent the same when unchecked.
 
-
     def sinput1Change(self):
         if self.ui.uniform_checkbox.isChecked():
             self.ui.silentInput2.setValue(self.ui.silentInput1.value())
@@ -91,7 +94,16 @@ class MainWindow(QMainWindow):
         self.ui.motionlessSliderInput.setValue(
             self.ui.motionlessPercentInput.value())
 
-# the audio below spinbox will change by 1
+# same thing for audioCut inputs
+    def audioCutSliderChange(self):
+        self.ui.audioCutInput.setValue(
+            self.ui.audioCutSliderInput.value())
+
+    def audioCutInputChange(self):
+        self.ui.audioCutSliderInput.setValue(
+            self.ui.audioCutInput.value())
+
+# Clear button
 
     def resetInput(self):
         self.ui.silentInput1.setValue(0.0)
@@ -103,6 +115,7 @@ class MainWindow(QMainWindow):
         self.ui.editOrderInput.setCurrentIndex(0)
         self.ui.exportProgramInput.setCurrentIndex(0)
 
+# Export
     def run_autoeditor(self):
         # if i want to run just audio, its "auto-editor test5.mp4 --edit audio:-25dB"
         # if i want to run just motion, its "auto-editor test5.mp4 --edit motion:threshold=0.02"
@@ -201,7 +214,7 @@ class MainWindow(QMainWindow):
         for line in iter(process.stdout.readline, ""):
             if not line.strip():  # Skip empty lines
                 continue
-            # print(f"Line: {line.strip()}")
+            print(f"Line: {line.strip()}")
 
             match = re.match(pattern, line)
             if match:
@@ -210,4 +223,5 @@ class MainWindow(QMainWindow):
             if "Finished." in line:
                 self.ui.progressBar.setValue(100)
                 print(command)
+
         process.wait()

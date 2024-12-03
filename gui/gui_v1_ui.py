@@ -207,6 +207,7 @@ class Ui_MainWindow(object):
         self.silentInput1.setObjectName(u"silentInput1")
         sizePolicy.setHeightForWidth(self.silentInput1.sizePolicy().hasHeightForWidth())
         self.silentInput1.setSizePolicy(sizePolicy)
+        self.silentInput1.setSingleStep(0.500000000000000)
 
         self.horizontalLayout_8.addWidget(self.silentInput1)
 
@@ -224,6 +225,7 @@ class Ui_MainWindow(object):
         self.silentInput2.setObjectName(u"silentInput2")
         sizePolicy.setHeightForWidth(self.silentInput2.sizePolicy().hasHeightForWidth())
         self.silentInput2.setSizePolicy(sizePolicy)
+        self.silentInput2.setSingleStep(0.500000000000000)
 
         self.horizontalLayout_8.addWidget(self.silentInput2)
 
@@ -323,9 +325,20 @@ class Ui_MainWindow(object):
 
         self.horizontalLayout_11.addWidget(self.audioCutLabel)
 
+        self.audioCutSliderInput = QSlider(self.centralwidget)
+        self.audioCutSliderInput.setObjectName(u"audioCutSliderInput")
+        sizePolicy.setHeightForWidth(self.audioCutSliderInput.sizePolicy().hasHeightForWidth())
+        self.audioCutSliderInput.setSizePolicy(sizePolicy)
+        self.audioCutSliderInput.setMinimum(-60)
+        self.audioCutSliderInput.setMaximum(0)
+        self.audioCutSliderInput.setValue(-25)
+        self.audioCutSliderInput.setOrientation(Qt.Orientation.Horizontal)
+
+        self.horizontalLayout_11.addWidget(self.audioCutSliderInput)
+
         self.audioCutInput = QSpinBox(self.centralwidget)
         self.audioCutInput.setObjectName(u"audioCutInput")
-        self.audioCutInput.setMinimum(-99)
+        self.audioCutInput.setMinimum(-60)
         self.audioCutInput.setMaximum(0)
         self.audioCutInput.setValue(-25)
 
@@ -446,6 +459,14 @@ class Ui_MainWindow(object):
 
         self.progressBar = QProgressBar(self.centralwidget)
         self.progressBar.setObjectName(u"progressBar")
+        palette = QPalette()
+        brush = QBrush(QColor(133, 139, 255, 255))
+        brush.setStyle(Qt.SolidPattern)
+        palette.setBrush(QPalette.Active, QPalette.Accent, brush)
+        palette.setBrush(QPalette.Inactive, QPalette.Accent, brush)
+        palette.setBrush(QPalette.Disabled, QPalette.Accent, brush)
+        self.progressBar.setPalette(palette)
+        self.progressBar.setAcceptDrops(False)
         self.progressBar.setValue(0)
 
         self.verticalLayout_9.addWidget(self.progressBar)

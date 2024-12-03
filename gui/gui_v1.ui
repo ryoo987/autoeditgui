@@ -266,6 +266,9 @@
                 <verstretch>0</verstretch>
                </sizepolicy>
               </property>
+              <property name="singleStep">
+               <double>0.500000000000000</double>
+              </property>
              </widget>
             </item>
             <item>
@@ -288,6 +291,9 @@
                 <horstretch>0</horstretch>
                 <verstretch>0</verstretch>
                </sizepolicy>
+              </property>
+              <property name="singleStep">
+               <double>0.500000000000000</double>
               </property>
              </widget>
             </item>
@@ -467,9 +473,31 @@
              </widget>
             </item>
             <item>
+             <widget class="QSlider" name="audioCutSliderInput">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+              <property name="minimum">
+               <number>-60</number>
+              </property>
+              <property name="maximum">
+               <number>0</number>
+              </property>
+              <property name="value">
+               <number>-25</number>
+              </property>
+              <property name="orientation">
+               <enum>Qt::Orientation::Horizontal</enum>
+              </property>
+             </widget>
+            </item>
+            <item>
              <widget class="QSpinBox" name="audioCutInput">
               <property name="minimum">
-               <number>-99</number>
+               <number>-60</number>
               </property>
               <property name="maximum">
                <number>0</number>
@@ -732,6 +760,46 @@
       </item>
       <item>
        <widget class="QProgressBar" name="progressBar">
+        <property name="palette">
+         <palette>
+          <active>
+           <colorrole role="Accent">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>133</red>
+              <green>139</green>
+              <blue>255</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </active>
+          <inactive>
+           <colorrole role="Accent">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>133</red>
+              <green>139</green>
+              <blue>255</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </inactive>
+          <disabled>
+           <colorrole role="Accent">
+            <brush brushstyle="SolidPattern">
+             <color alpha="255">
+              <red>133</red>
+              <green>139</green>
+              <blue>255</blue>
+             </color>
+            </brush>
+           </colorrole>
+          </disabled>
+         </palette>
+        </property>
+        <property name="acceptDrops">
+         <bool>false</bool>
+        </property>
         <property name="value">
          <number>0</number>
         </property>
