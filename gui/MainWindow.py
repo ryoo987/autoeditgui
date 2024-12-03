@@ -222,6 +222,11 @@ class MainWindow(QMainWindow):
                 self.ui.progressBar.setValue(progress)  # Update progress bar
             if "Finished." in line:
                 self.ui.progressBar.setValue(100)
+                self.ui.progressLabel.setText(line)
                 print(command)
 
         process.wait()
+        stderr = process.stderr.read().strip()  # Read all stderr after completion
+        if stderr:
+            print(stderr)
+            self.ui.progressLabel.setText(stderr)
