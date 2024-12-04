@@ -1,0 +1,16 @@
+# Ignore Python compiled files
+__pycache__/
+*.pyc
+gui/__pycache__/
+gui/*.pyc
+
+# Ignore specific files
+gui/output.mp4
+gui/main.spec
+
+# Ignore specific directories
+gui/build/
+gui/dist/
+
+# Ignore all .log files
+*.log
