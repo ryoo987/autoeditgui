@@ -45,6 +45,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             self, "Select Video File", "", "Video Files (*.mp4 *.avi *.mov);;All Files (*)")
         if filePath:
             self.filePath = filePath
+        else:
+            return
 
         self.progressLabel.setText("Retrieving audio stats")
         audio_stats_command = ["ffmpeg",
@@ -130,7 +132,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             "output.mp4",
             "Video Files (*.mp4 *.mkv *.mov *.avi *.webm);;All Files (*)"
         )
-        if exportPath:
+
+        if not exportPath[0]:
+            return
+        else:
             self.exportPath = exportPath[0]
 
         audio_command = ["auto-editor",
