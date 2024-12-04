@@ -1,54 +1,56 @@
 from PySide6.QtWidgets import QMainWindow, QFileDialog
-from PySide6.QtUiTools import QUiLoader
+from ui_mainwindow import Ui_MainWindow
 import subprocess
 import re
 from tqdm import tqdm
 from ffmpeg_progress_yield import FfmpegProgress
 
 
-class MainWindow(QMainWindow):
+class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self, loader):
         super().__init__()
 
         # Load the UI file
-        self.ui = loader.load("gui_v1.ui", self)
+        # self.ui = loader.load("gui_v1.ui", self)
+        self.setupUi(self)
 
-        self.ui.show()
+        # self.show()
 
         # connect ui ##########################
         # first if the user drag drops or imports their file, do ffmpeg analysis
-        self.file_path = None
-        self.ui.fileInputBtn.clicked.connect(self.importFile)
+        self.filePath = None
+        self.fileInputBtn.clicked.connect(self.importFile)
 
         # now account for input interactions made
-        self.ui.silentInput1.valueChanged.connect(self.sinput1Change)
-        self.ui.silentInput2.valueChanged.connect(self.sinput2Change)
+        self.silentInput1.valueChanged.connect(self.sinput1Change)
+        self.silentInput2.valueChanged.connect(self.sinput2Change)
 
-        self.ui.motionlessSliderInput.valueChanged.connect(self.sliderChange)
-        self.ui.motionlessPercentInput.valueChanged.connect(self.minputChange)
+        self.motionlessSliderInput.valueChanged.connect(self.sliderChange)
+        self.motionlessPercentInput.valueChanged.connect(self.minputChange)
 
-        self.ui.audioCutSliderInput.valueChanged.connect(
+        self.audioCutSliderInput.valueChanged.connect(
             self.audioCutSliderChange)
-        self.ui.audioCutInput.valueChanged.connect(self.audioCutInputChange)
+        self.audioCutInput.valueChanged.connect(self.audioCutInputChange)
 
-        self.ui.clearButton.clicked.connect(self.resetInput)
+        self.clearButton.clicked.connect(self.resetInput)
 
-        self.ui.exportButton.clicked.connect(self.run_autoeditor)
+        self.exportPath = None
+        self.exportButton.clicked.connect(self.run_autoeditor)
 
 ##################################################################################
     # all the methods
 
     def importFile(self):
-        file_path, _ = QFileDialog.getOpenFileName(
+        filePath, _ = QFileDialog.getOpenFileName(
             self, "Select Video File", "", "Video Files (*.mp4 *.avi *.mov);;All Files (*)")
-        if file_path:
-            self.file_path = file_path
+        if filePath:
+            self.filePath = filePath
 
-        self.ui.progressLabel.setText("Retrieving audio stats")
+        self.progressLabel.setText("Retrieving audio stats")
         audio_stats_command = ["ffmpeg",
                                "-hide_banner",
                                "-i",
-                               f"{self.file_path}",
+                               f"{self.filePath}",
                                "-filter:a",
                                "volumedetect",
                                "-f", "null",
@@ -59,9 +61,9 @@ class MainWindow(QMainWindow):
             for progress in result.run_command_with_progress():
                 pbar.update(progress - pbar.n)
                 # print(progress)
-                self.ui.progressBar.setValue(progress)
+                self.progressBar.setValue(progress)
 
-        self.ui.progressLabel.setText("Audio stats retrieved")
+        self.progressLabel.setText("Audio stats retrieved")
 
         output = result.stderr
         mean_volume = re.search(r"mean_volume:\s(-?\d+\.\d+)", output)
@@ -69,50 +71,51 @@ class MainWindow(QMainWindow):
         max_volume = re.search(r"max_volume:\s(-?\d+\.\d+)", output)
         max_volume = float(max_volume.group(1))
 
-        self.ui.meanDBValue.setNum(mean_volume)
-        self.ui.maxDBValue.setNum(max_volume)
+        self.meanDBValue.setNum(mean_volume)
+        self.maxDBValue.setNum(max_volume)
 
 
 # spinbox 1 and 2 will change by a tenth. They are the same number when uniform is checked. They arent the same when unchecked.
 
+
     def sinput1Change(self):
-        if self.ui.uniform_checkbox.isChecked():
-            self.ui.silentInput2.setValue(self.ui.silentInput1.value())
+        if self.uniform_checkbox.isChecked():
+            self.silentInput2.setValue(self.silentInput1.value())
 
     def sinput2Change(self):
-        if self.ui.uniform_checkbox.isChecked():
-            self.ui.silentInput1.setValue(self.ui.silentInput2.value())
+        if self.uniform_checkbox.isChecked():
+            self.silentInput1.setValue(self.silentInput2.value())
 
 # the motionless scale will go from 0 to 100% and needs to connect to the spinbox to reflect the slider changing. the spinbox itself needs to show % after every change
 
     def sliderChange(self):
-        self.ui.motionlessPercentInput.setValue(
-            self.ui.motionlessSliderInput.value())
+        self.motionlessPercentInput.setValue(
+            self.motionlessSliderInput.value())
 
     def minputChange(self):
-        self.ui.motionlessSliderInput.setValue(
-            self.ui.motionlessPercentInput.value())
+        self.motionlessSliderInput.setValue(
+            self.motionlessPercentInput.value())
 
 # same thing for audioCut inputs
     def audioCutSliderChange(self):
-        self.ui.audioCutInput.setValue(
-            self.ui.audioCutSliderInput.value())
+        self.audioCutInput.setValue(
+            self.audioCutSliderInput.value())
 
     def audioCutInputChange(self):
-        self.ui.audioCutSliderInput.setValue(
-            self.ui.audioCutInput.value())
+        self.audioCutSliderInput.setValue(
+            self.audioCutInput.value())
 
 # Clear button
 
     def resetInput(self):
-        self.ui.silentInput1.setValue(0.0)
-        self.ui.silentInput2.setValue(0.0)
-        self.ui.cutOrSplitInput.setCurrentIndex(0)
-        self.ui.motionlessSliderInput.setValue(0)
-        self.ui.motionlessPercentInput.setValue(0)
-        self.ui.audioCutInput.setValue(0)
-        self.ui.editOrderInput.setCurrentIndex(0)
-        self.ui.exportProgramInput.setCurrentIndex(0)
+        self.silentInput1.setValue(0.0)
+        self.silentInput2.setValue(0.0)
+        self.cutOrSplitInput.setCurrentIndex(0)
+        self.motionlessSliderInput.setValue(0)
+        self.motionlessPercentInput.setValue(0)
+        self.audioCutInput.setValue(0)
+        self.editOrderInput.setCurrentIndex(0)
+        self.exportProgramInput.setCurrentIndex(0)
 
 # Export
     def run_autoeditor(self):
@@ -120,80 +123,102 @@ class MainWindow(QMainWindow):
         # if i want to run just motion, its "auto-editor test5.mp4 --edit motion:threshold=0.02"
         # if i want to run both, its 'auto-editor test5.mp4 --edit "(or audio:-25dB motion:0.50)" '.
         # Problem is, it will delete audio below -25db but keep the motion if its above 0.50, regardless of audio / keeps audio regardless of motion. I need to do one command after the other if I want to make sure all parts with audio below -25db is deleted and then all parts w/motion below threshold is deleted (and vice versa). Order matters.
+        self.exportPath = None
+        exportPath = QFileDialog.getSaveFileName(
+            self,
+            "Save File",
+            "output.mp4",
+            "Video Files (*.mp4 *.mkv *.mov *.avi *.webm);;All Files (*)"
+        )
+        if exportPath:
+            self.exportPath = exportPath[0]
+
         audio_command = ["auto-editor",
-                         f"{self.file_path}",
-                         "--edit", f"audio:{self.ui.audioCutInput.value()}dB",
+                         f"{self.filePath}",
+                         "--edit",
+                         f"audio:{self.audioCutInput.value()}dB",
                          "--output",
                          "output.mp4",
-                         "--progress", "modern"]
+                         "--progress",
+                         "modern"]
 
         motion_command = ["auto-editor",
-                          f"{self.file_path}",
-                          "--edit", f"motion:threshold="
-                          f"{self.ui.motionlessPercentInput.value()}",
+                          f"{self.filePath}",
+                          "--edit",
+                          f"motion:threshold="
+                          f"{self.motionlessPercentInput.value()}",
                           "--output",
                           "output.mp4",
-                          "--progress", "modern"]
+                          "--progress",
+                          "modern"]
 
         default_both_command = ["auto-editor",
-                                f"{self.file_path}",
-                                "--edit", f"(or audio:"
-                                f"{self.ui.audioCutInput.value()}"
+                                f"{self.filePath}",
+                                "--edit",
+                                f"(or audio:",
+                                f"{self.audioCutInput.value()}",
                                 f"motion:{
-                                    self.ui.motionlessPercentInput.value()}",
+                                    self.motionlessPercentInput.value()}",
                                 "--output",
-                                "output.mp4",
-                                "--progress", "modern"],
+                                f"{self.exportPath}",
+                                "--progress",
+                                "modern"],
 
         currCommandNum = 1
         command = []
-        match self.ui.editOrderInput.currentText():
+        match self.editOrderInput.currentText():
             case "audio only":
                 command = audio_command.copy()
+                command[5] = f"{self.exportPath}"
                 command.extend(
-                    ["--export", self.ui.exportProgramInput.currentText()])
+                    ["--export", self.exportProgramInput.currentText()])
             case "motion-only":
                 command = motion_command.copy()
+                command[5] = f"{self.exportPath}"
                 command.extend(
-                    ["--export", self.ui.exportProgramInput.currentText()])
+                    ["--export", self.exportProgramInput.currentText()])
             case "audio then motion":
-                self.ui.progressLabel.setText("Process 1 of 2")
+                self.progressLabel.setText("Process 1 of 2")
                 self.runAutoWProgressBar(audio_command)
 
                 command = motion_command.copy()
-                command[1] = "output.mp4"
+                command[1] = "output.mp4"  # change input
+                command[5] = f"{self.exportPath}"
                 command.extend(
-                    ["--export", self.ui.exportProgramInput.currentText()])
+                    ["--export", self.exportProgramInput.currentText()])
                 currCommandNum = 2
             case "motion then audio":
-                self.ui.progressLabel.setText("Process 1 of 2")
+                self.progressLabel.setText("Process 1 of 2")
                 self.runAutoWProgressBar(motion_command)
 
                 command = audio_command.copy()
-                command[1] = "output.mp4"
+                command[1] = "output.mp4"  # change input
+                command[5] = f"{self.exportPath}"
                 command.extend(
-                    ["--export", self.ui.exportProgramInput.currentText()])
+                    ["--export", self.exportProgramInput.currentText()])
                 currCommandNum = 2
             case "keep both":  # default case is doing both at the same time
                 command = default_both_command.copy()
                 command.extend(
-                    ["--export", self.ui.exportProgramInput.currentText()])
+                    ["--export", self.exportProgramInput.currentText()])
 
-        if (self.ui.cutOrSplitInput.currentText() == "Split"):
+        if (self.cutOrSplitInput.currentText() == "Split"):
             command.extend(["--silent-speed", "1", "--video-speed", "1"])
 
-        if (self.ui.silentInput1.value() > 0.00 or self.ui.silentInput2.value() > 0.00):
+        if (self.silentInput1.value() > 0.00 or self.silentInput2.value() > 0.00):
             command.extend(["--margin",
-                            f"{self.ui.silentInput1.value()}s,"
-                            f"{self.ui.silentInput2.value()}s"])
+                            f"{self.silentInput1.value()}s,"
+                            f"{self.silentInput2.value()}s"])
 
-        self.ui.progressLabel.setText(
+        self.progressLabel.setText(
             f"Process {currCommandNum} of {currCommandNum}")
+
         self.runAutoWProgressBar(command)
 
+# progress bar stuff
     def runAutoWProgressBar(self, command):
         # Reset the progress bar
-        self.ui.progressBar.reset()
+        self.progressBar.reset()
 
         # Add PYTHONUNBUFFERED to environment variables for unbuffered output
         env = {**subprocess.os.environ, "PYTHONUNBUFFERED": "1"}
@@ -213,19 +238,20 @@ class MainWindow(QMainWindow):
         for line in iter(process.stdout.readline, ""):
             if not line.strip():  # Skip empty lines
                 continue
+            # comment this out when i figure out threading
             print(f"Line: {line.strip()}")
 
             match = re.match(pattern, line)
             if match:
                 progress = float(match.group(1))  # Extract percentage
-                self.ui.progressBar.setValue(progress)  # Update progress bar
+                self.progressBar.setValue(progress)  # Update progress bar
             if "Finished." in line:
-                self.ui.progressBar.setValue(100)
-                self.ui.progressLabel.setText(line)
+                self.progressBar.setValue(100)
+                self.progressLabel.setText(line)
                 print(command)
 
         process.wait()
         stderr = process.stderr.read().strip()  # Read all stderr after completion
         if stderr:
             print(stderr)
-            self.ui.progressLabel.setText(stderr)
+            self.progressLabel.setText(stderr)
